@@ -12,4 +12,3 @@ Prueba de drag & drop en flutter
 ✔ El tiempo para realizar la tarea debe ser de una hora y discutiremos 20 minutos las complicaciones y las posibles soluciones encontradas
 
 ![GitHub Logo](/images/preview.gif)
-Format: ![imagen de muestra](url)
