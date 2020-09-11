@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 
 import 'package:audioplayer/services/pool_services.dart';
 
@@ -45,7 +46,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: Get.key,
       title: 'Futgolazo',
-      home: MyHomePage(),
+      home: ChangeNotifierProvider(
+          create: (_) => new ProviderChange(), child: MyHomePage()),
     );
   }
 }
@@ -59,9 +61,26 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  double current;
+  AnimationController controller;
+  Animation<double> translate;
+
   @override
   void initState() {
+    current = Provider.of<ProviderChange>(context, listen: false).current;
+    controller = new AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1000));
+    translate = Tween(begin: 0.0, end: -1.5).animate(CurvedAnimation(
+      parent: controller,
+      curve: Interval(0.0, 1.0, curve: Curves.linear),
+    ));
+    controller.addListener(() {
+      if (controller.status == AnimationStatus.completed) {
+        controller.reverse();
+        // controller.reset();
+      }
+    });
     super.initState();
   }
 
@@ -78,12 +97,18 @@ class _MyHomePageState extends State<MyHomePage> {
           color: Colors.red[50],
           child: Stack(
             alignment: Alignment.center,
-            fit: StackFit.loose,
+            // fit: StackFit.loose,
             children: [
               leftDragTarget(),
               rightDragTarget(),
               bottomDragTarget(),
               draggableButton(),
+              Align(
+                alignment: Alignment.topCenter,
+                child: RaisedButton(onPressed: () {
+                  controller.forward();
+                }),
+              )
             ],
           ),
         ),
@@ -189,19 +214,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget leftDragTarget() {
-    return Positioned(
-      top: 0,
-      left: 0,
+    return Align(
+      // top: 0,
+      // left: 0,
+      alignment: Alignment.centerLeft,
       child: DragTarget<int>(
         builder: (BuildContext ctx, List<int> incoming, List rejected) {
-          return Container(
-            width: 100,
-            height: 300,
-            color: Colors.deepPurple[200],
-          );
+          return _buildLeftWidget();
         },
         onWillAccept: (data) {
           print("onWillAccept LEFT");
+
           return true;
         },
         onAccept: (data) {
@@ -212,5 +235,32 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
     );
+  }
+
+  Widget _buildLeftWidget() {
+    return AnimatedBuilder(
+        animation: controller,
+        builder: (_, child) {
+          current = translate.value;
+          print('==========> $current');
+          double pivote = 50;
+          double width = 100 + ((current * pivote) / -1.5);
+          double height = 200 + ((current * pivote) / -1.5);
+          return Container(
+            width: width,
+            height: height,
+            color: Colors.deepPurple[200],
+          );
+        });
+  }
+}
+
+class ProviderChange with ChangeNotifier {
+  double _current = 0.0;
+
+  double get current => this._current;
+  set current(double current) {
+    this._current = current;
+    notifyListeners();
   }
 }
