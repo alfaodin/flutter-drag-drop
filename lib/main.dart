@@ -148,7 +148,10 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.green[300],
           );
         },
-        onWillAccept: (data) => true,
+        onWillAccept: (data) {
+          print("onWillAccept BOTTOM");
+          return true;
+        },
         onAccept: (data) {
           print("ACEPTADO BOTTOM");
         },
@@ -171,7 +174,10 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.yellow[300],
           );
         },
-        onWillAccept: (data) => true,
+        onWillAccept: (data) {
+          print("onWillAccept RUGHT");
+          return true;
+        },
         onAccept: (data) {
           print("ACEPTADO RIGHT");
         },
@@ -194,7 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.deepPurple[200],
           );
         },
-        onWillAccept: (data) => true,
+        onWillAccept: (data) {
+          print("onWillAccept LEFT");
+          return true;
+        },
         onAccept: (data) {
           print("ACEPTADO LEFT");
         },
