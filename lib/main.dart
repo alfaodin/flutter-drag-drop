@@ -1,3 +1,4 @@
+import 'package:audioplayer/models/drag_token_position.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -5,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:audioplayer/services/pool_services.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,24 +69,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('tessssss'),
-      ),
-      body: Center(
-        child: Container(
-          height: 300,
-          width: 350,
-          color: Colors.red[50],
-          child: Stack(
-            alignment: Alignment.center,
-            fit: StackFit.loose,
-            children: [
-              leftDragTarget(),
-              rightDragTarget(),
-              bottomDragTarget(),
-              draggableButton(),
-            ],
+    return Provider(
+      create: (context) => DragTokenPosition(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Consumer<DragTokenPosition>(
+            builder: (context, value, child) {
+              return Text('tessssss ${value.X} - ${value.Y}');
+            },
+          ),
+        ),
+        body: Center(
+          child: Container(
+            height: 300,
+            width: 350,
+            color: Colors.red[50],
+            child: Stack(
+              alignment: Alignment.center,
+              fit: StackFit.loose,
+              children: [
+                leftDragTarget(),
+                rightDragTarget(),
+                bottomDragTarget(),
+                draggableButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -95,43 +104,54 @@ class _MyHomePageState extends State<MyHomePage> {
     return Positioned(
       top: 80,
       left: 130,
-      child: Draggable<int>(
-        data: 1,
-        feedback: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Icon(Icons.add_to_home_screen),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.blue[600],
-            borderRadius: BorderRadius.circular(500),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 7,
-                offset: Offset(0, 3), // changes position of shadow
+      child: Consumer<DragTokenPosition>(
+        builder: (context, value, child) {
+          return Listener(
+            onPointerMove: (pointer) {
+              print('object ${pointer.position}');
+              value.changePosition(pointer.position);
+              setState(() {});
+            },
+            child: Draggable<int>(
+              data: 1,
+              feedback: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Icon(Icons.add_to_home_screen),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blue[600],
+                  borderRadius: BorderRadius.circular(500),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-        childWhenDragging: Container(
-          color: Colors.blue[100],
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Icon(Icons.add_to_home_screen),
-          ),
-        ),
-        child: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Icon(Icons.add_to_home_screen),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.blue[400],
-            borderRadius: BorderRadius.circular(500),
-          ),
-        ),
+              childWhenDragging: Container(
+                color: Colors.blue[100],
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Icon(Icons.add_to_home_screen),
+                ),
+              ),
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Icon(Icons.add_to_home_screen),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blue[400],
+                  borderRadius: BorderRadius.circular(500),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
